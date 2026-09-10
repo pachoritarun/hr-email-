@@ -71,6 +71,27 @@ export async function getDbPool() {
       )
     `);
 
+    // 3. Create faculty_onboarding table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS faculty_onboarding (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        salutation VARCHAR(50) DEFAULT 'Dr.',
+        designation VARCHAR(255) NOT NULL,
+        department VARCHAR(255) NOT NULL,
+        qualification TEXT,
+        previous_experience TEXT,
+        hobbies TEXT,
+        email VARCHAR(255) NOT NULL,
+        photo_mime VARCHAR(100) DEFAULT 'image/jpeg',
+        photo_base64 LONGTEXT,
+        custom_body TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        sent_count INT DEFAULT 0,
+        last_sent_at TIMESTAMP NULL
+      )
+    `);
+
     console.log("Database tables verified successfully.");
   } catch (error) {
     console.error("Database table initialization failed:", error);

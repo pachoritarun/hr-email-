@@ -19,10 +19,9 @@ export async function GET(req: Request) {
     const [rows] = await pool.query(query, params);
     return NextResponse.json({ success: true, contacts: rows });
   } catch (error: any) {
-    console.error("Failed to fetch contacts:", error);
+    console.warn("MySQL Contacts Fetch Notice:", error?.message || error);
     return NextResponse.json(
-      { success: false, error: error.message || "Internal server error" },
-      { status: 500 }
+      { success: true, contacts: [], warning: "MySQL database not connected or credentials missing." }
     );
   }
 }

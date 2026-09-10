@@ -11,6 +11,8 @@ import {
   Trash2, Plus, Send, Database, History, Smartphone, UserPlus
 } from "lucide-react";
 import toast from "react-hot-toast";
+import FacultyEmailerTab from "./components/FacultyEmailerTab";
+import { BASE_PATH, getAssetUrl } from "@/lib/config";
 
 type StudentData = {
   name?: string;
@@ -69,245 +71,7 @@ export default function Dashboard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const subjectInputRef = useRef<HTMLInputElement>(null);
   const bodyInputRef = useRef<HTMLTextAreaElement>(null);
-
-  // ==========================================
-  // DIRECTORY & BROADCAST STATES & UTILITIES
-  // ==========================================
-  const [dashboardTab, setDashboardTab] = useState<"campaign" | "directory">("campaign");
-  const [selectedRoleGroup, setSelectedRoleGroup] = useState<"Faculty" | "Student" | "Alumni" | "Custom" | "Spreadsheet">("Faculty");
-  const [dbContacts, setDbContacts] = useState<any[]>([]);
-  const [selectedContacts, setSelectedContacts] = useState<Record<string | number, boolean>>({});
-  const [importRole, setImportRole] = useState<"Faculty" | "Student" | "Alumni">("Student");
-  
-  // Custom number input states
-  const [customContact, setCustomContact] = useState({
-    name: "",
-    phone: "",
-    email: "",
-  });
-
-  // Broadcast settings
-  const [broadcastMessage, setBroadcastMessage] = useState(
-    "Dear {{name}},\n\nGreetings from JECRC University.\n\nThis is an official utility message.\n\nWarm regards,\nJECRC University"
-  );
-  const [broadcastSubject, setBroadcastSubject] = useState("Official Notification from JECRC University");
-  const [sendWhatsApp, setSendWhatsApp] = useState(true);
-  const [sendEmail, setSendEmail] = useState(true);
-  
-  // Broadcast history & states
-  const [broadcastLogs, setBroadcastLogs] = useState<any[]>([]);
-  const [isBroadcasting, setIsBroadcasting] = useState(false);
-  const [broadcastProgress, setBroadcastProgress] = useState({ sent: 0, total: 0 });
-  const [broadcastResults, setBroadcastResults] = useState<any[]>([]);
-  const [isRefreshingLogs, setIsRefreshingLogs] = useState(false);
-
-  // Fetch contacts based on role
-  const fetchContacts = async (role: string) => {
-    try {
-      const res = await fetch(`/api/contacts?role=${role}`);
-      if (!res.ok) throw new Error("HTTP error " + res.status);
-      const result = await res.json();
-      if (result.success) {
-        setDbContacts(result.contacts);
-        // Select all by default
-        const initialSelected: Record<string | number, boolean> = {};
-        result.contacts.forEach((c: any) => {
-          initialSelected[c.id] = true;
-        });
-        setSelectedContacts(initialSelected);
-      } else {
-        toast.error("Failed to load contacts: " + result.error);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error loading contacts from database.");
-    }
-  };
-
-  // Fetch past broadcast logs
-  const fetchBroadcastLogs = async () => {
-    setIsRefreshingLogs(true);
-    try {
-      const res = await fetch("/api/broadcast/send");
-      if (!res.ok) throw new Error("HTTP error " + res.status);
-      const result = await res.json();
-      if (result.success) {
-        setBroadcastLogs(result.logs);
-      }
-    } catch (err) {
-      console.error("Failed to load logs:", err);
-    } finally {
-      setIsRefreshingLogs(false);
-    }
-  };
-
-  // Bulk import spreadsheet contacts to DB
-  const importExcelToDb = async () => {
-    if (data.length === 0) {
-      return toast.error("Please upload an Excel sheet in Tab 1 first.");
-    }
-
-    const toastId = toast.loading(`Importing ${data.length} records into Database as ${importRole.toUpperCase()}...`);
-    try {
-      // Auto-detect columns (case-insensitive)
-      const nameKey = Object.keys(data[0]).find(k => k.toLowerCase().includes('name')) || 'name';
-      const emailKey = Object.keys(data[0]).find(k => k.toLowerCase().includes('email')) || 'email';
-      const phoneKey = Object.keys(data[0]).find(k => /phone|mobile|whatsapp|contact/i.test(k)) || 'phone';
-
-      const formattedContacts = data.map(row => ({
-        name: row[nameKey] || row.name || "Unknown",
-        email: row[emailKey] || row.email || "",
-        phone: row[phoneKey] || row.phone || row.mobile || "",
-        role: importRole
-      })).filter(c => c.phone || c.email);
-
-      const response = await fetch("/api/contacts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contacts: formattedContacts }),
-      });
-
-      const result = await response.json();
-      if (response.ok && result.success) {
-        toast.success(`Successfully imported ${result.count} contacts to ${importRole}!`, { id: toastId });
-        if (selectedRoleGroup === importRole) {
-          fetchContacts(importRole);
-        }
-      } else {
-        toast.error(`Import failed: ${result.error || "Unknown error"}`, { id: toastId });
-      }
-    } catch (error: any) {
-      console.error(error);
-      toast.error(`An error occurred during import: ${error.message}`, { id: toastId });
-    }
-  };
-
-  // Delete single contact by ID
-  const deleteContact = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this contact?")) return;
-    try {
-      const res = await fetch(`/api/contacts?id=${id}`, { method: "DELETE" });
-      const result = await res.json();
-      if (result.success) {
-        toast.success("Contact deleted successfully.");
-        fetchContacts(selectedRoleGroup);
-      } else {
-        toast.error("Failed to delete contact: " + result.error);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error deleting contact.");
-    }
-  };
-
-  // Clear all contacts by role
-  const clearContactsByRole = async (role: string) => {
-    if (!confirm(`Are you absolutely sure you want to delete ALL database contacts under the role '${role}'?`)) return;
-    try {
-      const res = await fetch(`/api/contacts?role=${role}`, { method: "DELETE" });
-      const result = await res.json();
-      if (result.success) {
-        toast.success(`Cleared all ${role} contacts successfully.`);
-        fetchContacts(role);
-      } else {
-        toast.error("Failed to clear contacts: " + result.error);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error clearing contacts.");
-    }
-  };
-
-  // Trigger simultaneous broadcast
-  const handleBroadcastSend = async () => {
-    // Determine recipients
-    let recipientsList: any[] = [];
-    if (selectedRoleGroup === "Faculty" || selectedRoleGroup === "Student" || selectedRoleGroup === "Alumni") {
-      recipientsList = dbContacts.filter(c => selectedContacts[c.id]);
-    } else if (selectedRoleGroup === "Spreadsheet") {
-      recipientsList = data.filter((_, idx) => selectedContacts[idx]);
-    } else if (selectedRoleGroup === "Custom") {
-      if (!customContact.phone || !customContact.email) {
-        return toast.error("Please fill in the custom recipient phone and email.");
-      }
-      recipientsList = [customContact];
-    }
-
-    if (recipientsList.length === 0) {
-      return toast.error("Please select at least one recipient to send.");
-    }
-
-    if (sendEmail && (!smtpConfig.host || !smtpConfig.user || !smtpConfig.pass)) {
-      return toast.error("Please configure SMTP settings in the left pane of Tab 1.");
-    }
-
-    setIsBroadcasting(true);
-    setBroadcastProgress({ sent: 0, total: recipientsList.length });
-    const toastId = toast.loading(`Broadcasting messages (0/${recipientsList.length})...`);
-
-    try {
-      const response = await fetch("/api/broadcast/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          recipients: recipientsList,
-          messageText: broadcastMessage,
-          sendWhatsApp,
-          sendEmail,
-          smtpConfig,
-          emailSubject: broadcastSubject,
-          role: selectedRoleGroup === "Custom" || selectedRoleGroup === "Spreadsheet" ? "Custom" : selectedRoleGroup,
-        }),
-      });
-
-      const result = await response.json();
-      if (response.ok && result.success) {
-        toast.success(`Broadcast completed successfully! Sent to ${recipientsList.length} recipients.`, { id: toastId });
-        setBroadcastResults(result.results);
-        fetchBroadcastLogs(); // refresh database history
-      } else {
-        toast.error(`Broadcast failed: ${result.error || "Unknown error"}`, { id: toastId });
-      }
-    } catch (error: any) {
-      console.error(error);
-      toast.error(`Broadcast failed: ${error.message}`, { id: toastId });
-    } finally {
-      setIsBroadcasting(false);
-      setBroadcastProgress({ sent: recipientsList.length, total: recipientsList.length });
-    }
-  };
-
-  // Toggle Selection handlers
-  const toggleSelectContact = (id: string | number, checked: boolean) => {
-    setSelectedContacts((prev) => ({
-      ...prev,
-      [id]: checked,
-    }));
-  };
-
-  const toggleSelectAllContacts = (checked: boolean) => {
-    const updated = { ...selectedContacts };
-    if (selectedRoleGroup === "Faculty" || selectedRoleGroup === "Student" || selectedRoleGroup === "Alumni") {
-      dbContacts.forEach((c) => {
-        updated[c.id] = checked;
-      });
-    } else if (selectedRoleGroup === "Spreadsheet") {
-      data.forEach((_, idx) => {
-        updated[idx] = checked;
-      });
-    }
-    setSelectedContacts(updated);
-  };
-
-  // Load directory contacts and logs when tab/role changes
-  useEffect(() => {
-    if (dashboardTab === "directory") {
-      fetchBroadcastLogs();
-      if (selectedRoleGroup === "Faculty" || selectedRoleGroup === "Student" || selectedRoleGroup === "Alumni") {
-        fetchContacts(selectedRoleGroup);
-      }
-    }
-  }, [dashboardTab, selectedRoleGroup]);
+  const [dashboardTab, setDashboardTab] = useState<"faculty" | "campaign">("faculty");
 
   // Auto-load settings on mount
   useEffect(() => {
@@ -450,7 +214,7 @@ export default function Dashboard() {
       for (let i = 0; i < data.length; i += BATCH_SIZE) {
         const batch = data.slice(i, i + BATCH_SIZE);
 
-        const response = await fetch("/api/send-emails", {
+        const response = await fetch(`${BASE_PATH}/api/send-emails`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -485,39 +249,12 @@ export default function Dashboard() {
     }
   };
 
-  const downloadReport = () => {
-    if (sendResults.length === 0) return;
-
-    const reportData = data.map((row) => {
-      const emailKey = Object.keys(row).find((k) => k.toLowerCase().includes("email"));
-      const rowEmail = emailKey ? row[emailKey] : null;
-      const result = sendResults.find((r) => r.email === rowEmail);
-
-      return {
-        ...row,
-        "Dispatch Status": result ? (result.success ? "Success" : "Failed") : "Not Sent",
-        "Error Log": result?.error || "",
-      };
-    });
-
-    const ws = XLSX.utils.json_to_sheet(reportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "JECRC_Dispatch_Report");
-    XLSX.writeFile(wb, `JECRC_Email_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
-  };
-
   // Stats & Calculations
   const successCount = sendResults.filter((r) => r.success).length;
   const failureCount = sendResults.filter((r) => !r.success).length;
   const inQueueCount = Math.max(0, data.length - progress.sent);
-  const successRate = sendResults.length > 0 ? Math.round((successCount / sendResults.length) * 100) : 0;
-
-  // ETA & Speed Calculation
-  const elapsedTime = startTime && isSending ? Math.max(1, (Date.now() - startTime) / 1000) : 0;
-  const sendSpeed = elapsedTime > 0 ? (progress.sent / elapsedTime).toFixed(1) : "0";
-  const estimatedTimeRemaining = isSending && Number(sendSpeed) > 0
-    ? Math.ceil(inQueueCount / Number(sendSpeed))
-    : 0;
+  const sendSpeed = (startTime && isSending) ? (progress.sent / Math.max(1, (Date.now() - startTime) / 1000)).toFixed(1) : "0";
+  const estimatedTimeRemaining = isSending && Number(sendSpeed) > 0 ? Math.ceil(inQueueCount / Number(sendSpeed)) : 0;
 
   // Filtered Table
   const filteredData = data.filter((row) => {
@@ -562,7 +299,7 @@ export default function Dashboard() {
                 : "bg-white border border-slate-200 shadow-sm"
               }`}>
               <img
-                src="/jecrc-logo.png"
+                src={getAssetUrl("/jecrc-logo.png")}
                 alt="JECRC University Logo"
                 className={`h-12 sm:h-14 w-auto object-contain transition-all ${isDark ? "brightness-110 contrast-125" : "logo-blend-multiply"
                   }`}
@@ -602,26 +339,28 @@ export default function Dashboard() {
               onClick={toggleTheme}
               className={`p-2.5 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-95 cursor-pointer ${isDark
                   ? "bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800"
-                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                  : "bg-white border-slate-200 text-slate-700 hover:bg-white/90"
                 }`}
               title={`Switch to ${isDark ? "Light" : "Dark"} Mode`}
             >
               {isDark ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5 text-slate-700" />}
             </button>
-
-            <div className={`px-4 py-2 rounded-2xl border flex items-center space-x-3 min-w-[130px] ${isDark ? "bg-slate-900/90 border-slate-800" : "bg-white border-slate-200 shadow-sm"
-              }`}>
-              <Users className="w-4 h-4 text-blue-500" />
-              <div>
-                <div className={`text-[10px] uppercase tracking-wider font-semibold ${isDark ? "text-slate-400" : "text-slate-400"}`}>Total Students</div>
-                <div className={`text-sm font-semibold ${isDark ? "text-slate-100" : "text-slate-800"}`}>{data.length}</div>
-              </div>
-            </div>
           </div>
         </header>
 
         {/* Tab Selection Switcher */}
         <div className="flex border-b border-slate-200 dark:border-slate-800 gap-2 pb-1 overflow-x-auto">
+          <button
+            onClick={() => setDashboardTab("faculty")}
+            className={`px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center space-x-2 whitespace-nowrap ${
+              dashboardTab === "faculty"
+                ? "border-red-600 text-red-600 dark:text-red-500 font-semibold"
+                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+            }`}
+          >
+            <GraduationCap className="w-4 h-4" />
+            <span>Faculty Welcome</span>
+          </button>
           <button
             onClick={() => setDashboardTab("campaign")}
             className={`px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center space-x-2 whitespace-nowrap ${
@@ -633,20 +372,11 @@ export default function Dashboard() {
             <Mail className="w-4 h-4" />
             <span>Email Campaigns</span>
           </button>
-          <button
-            onClick={() => setDashboardTab("directory")}
-            className={`px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center space-x-2 whitespace-nowrap ${
-              dashboardTab === "directory"
-                ? "border-emerald-500 text-emerald-600 dark:text-emerald-500 font-semibold"
-                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Directory & Utility Broadcast</span>
-          </button>
         </div>
 
-        {dashboardTab === "campaign" ? (
+        {dashboardTab === "faculty" ? (
+          <FacultyEmailerTab isDark={isDark} smtpConfig={smtpConfig} setSmtpConfig={setSmtpConfig} />
+        ) : (
           <>
             {/* Live Queue Dispatch Monitor Banner */}
             <div className={`p-6 rounded-3xl border transition-all ${isDark ? "dark-glass border-slate-800/80 shadow-2xl" : "light-glass border-slate-200"
@@ -1146,7 +876,7 @@ export default function Dashboard() {
                     <div className="flex items-center space-x-3">
                       <div className={`p-1.5 rounded-xl border ${isDark ? "bg-slate-950 border-slate-800" : "bg-white border-slate-200"}`}>
                         <img
-                          src="/jecrc-logo.png"
+                          src={getAssetUrl("/jecrc-logo.png")}
                           alt="JECRC"
                           className={`h-6 w-auto object-contain ${isDark ? "" : "logo-blend-multiply"}`}
                         />
@@ -1288,334 +1018,6 @@ export default function Dashboard() {
           </div>
         </div>
         </>
-      ) : (
-        <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn">
-          {/* Header & Category Target Selector */}
-          <div className={`p-6 rounded-3xl border transition-all ${
-            isDark ? "dark-glass border-slate-800/80 shadow-2xl" : "light-glass border-slate-200"
-          } space-y-6`}>
-            
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h2 className={`text-base font-bold flex items-center gap-2 ${isDark ? "text-slate-100" : "text-slate-800"}`}>
-                  <Database className="w-5 h-5 text-emerald-500" />
-                  JECRC Utility Broadcasting Service
-                </h2>
-                <p className={`text-xs mt-1 font-normal ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                  Send direct customized notifications via WhatsApp and Email to JECRC groups.
-                </p>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
-                <span className="text-xs font-bold text-emerald-500">Service Online</span>
-              </div>
-            </div>
-
-            {/* Target Audience Selectors */}
-            <div>
-              <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2.5 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                Select Target Audience Group
-              </label>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { id: "Faculty", label: "Faculty" },
-                  { id: "Student", label: "Students" },
-                  { id: "Alumni", label: "Alumni" },
-                  { id: "Custom", label: "Custom Input" },
-                ].map((item) => {
-                  let finalCount = 0;
-                  if (item.id === "Faculty" || item.id === "Student" || item.id === "Alumni") {
-                    finalCount = dbContacts.filter(c => c.role === item.id).length;
-                  } else {
-                    finalCount = 1;
-                  }
-
-                  const isActive = selectedRoleGroup === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedRoleGroup(item.id as any);
-                        setSelectedContacts({});
-                      }}
-                      className={`py-2.5 px-2 rounded-xl text-center border font-bold text-xs transition-all flex flex-col items-center gap-1 cursor-pointer ${
-                        isActive
-                          ? "bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-500/10"
-                          : isDark
-                          ? "bg-slate-955 border-slate-800 text-slate-300 hover:text-white"
-                          : "bg-slate-100 border-slate-200 text-slate-800 hover:bg-slate-200"
-                      }`}
-                    >
-                      <span className="truncate w-full">{item.label}</span>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
-                        isActive ? "bg-white/20 text-white" : "bg-slate-800 text-slate-400 border border-slate-700"
-                      }`}>
-                        {item.id === "Custom" ? "1" : finalCount}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Active Broadcast Progress Stats Banner */}
-          {isBroadcasting && (
-            <div className={`p-5 rounded-2xl border ${isDark ? "bg-emerald-500/10 border-emerald-500/30" : "bg-emerald-50 border-emerald-200"}`}>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-600 text-white rounded-xl animate-spin">
-                  <RefreshCw className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 animate-pulse">Broadcasting execution active...</div>
-                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                    Progress: {broadcastProgress.sent} / {broadcastProgress.total} contacts
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 w-full h-1.5 bg-slate-900 border border-slate-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-emerald-600 transition-all duration-300"
-                  style={{ width: `${(broadcastProgress.sent / broadcastProgress.total) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-          )}
-
-          {/* Main Notice Dispatch & Recipient Settings */}
-          <div className={`p-6 rounded-3xl border transition-all ${
-            isDark ? "dark-glass border-slate-800/80 shadow-2xl" : "light-glass border-slate-200"
-          } space-y-6`}>
-            
-            {/* Custom Input or Checklist (Masked) */}
-            {selectedRoleGroup === "Custom" ? (
-              <div className={`p-4 rounded-2xl border space-y-4 ${isDark ? "bg-slate-955/60 border-slate-850" : "bg-slate-50 border-slate-200"}`}>
-                <h4 className="text-xs font-bold flex items-center gap-1.5 text-emerald-500">
-                  <UserPlus className="w-4 h-4" /> Send Message to Specific Recipient
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">Name</label>
-                    <input
-                      type="text"
-                      value={customContact.name}
-                      onChange={(e) => setCustomContact({ ...customContact, name: e.target.value })}
-                      className={`w-full px-3 py-2 rounded-xl outline-none text-xs ${isDark ? "dark-input" : "light-input"}`}
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">WhatsApp Phone</label>
-                    <input
-                      type="text"
-                      value={customContact.phone}
-                      onChange={(e) => setCustomContact({ ...customContact, phone: e.target.value })}
-                      className={`w-full px-3 py-2 rounded-xl outline-none text-xs ${isDark ? "dark-input text-emerald-400 font-bold" : "light-input font-bold"}`}
-                      placeholder="919876543210"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">Email Address</label>
-                    <input
-                      type="email"
-                      value={customContact.email}
-                      onChange={(e) => setCustomContact({ ...customContact, email: e.target.value })}
-                      className={`w-full px-3 py-2 rounded-xl outline-none text-xs ${isDark ? "dark-input" : "light-input"}`}
-                      placeholder="john@example.com"
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <label className="inline-flex items-center text-xs font-semibold text-slate-400 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={dbContacts.length > 0 && dbContacts.every((c) => selectedContacts[c.id])}
-                      onChange={(e) => toggleSelectAllContacts(e.target.checked)}
-                      className="rounded border-slate-700 bg-slate-900 text-emerald-600 focus:ring-emerald-500 mr-2 cursor-pointer h-4 w-4"
-                    />
-                    Select All Recipients ({dbContacts.length} in DB)
-                  </label>
-
-                  <div className="relative">
-                    <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search contacts..."
-                      className={`pl-8 pr-3 py-1.5 rounded-xl text-xs outline-none w-full sm:w-48 ${
-                        isDark ? "dark-input" : "light-input"
-                      }`}
-                    />
-                  </div>
-                </div>
-
-                {/* Table Grid (Masked numbers) */}
-                <div className={`border rounded-2xl overflow-hidden ${isDark ? "border-slate-800 bg-slate-955/20" : "border-slate-200 bg-white"}`}>
-                  <div className="overflow-x-auto max-h-48">
-                    <table className="w-full text-xs text-left">
-                      <thead className={`border-b sticky top-0 uppercase tracking-wider text-[9px] font-semibold ${
-                        isDark ? "bg-slate-900 text-slate-400 border-slate-800" : "bg-slate-50 text-slate-600 border-slate-200"
-                      }`}>
-                        <tr>
-                          <th className="px-4 py-2 w-10 text-center">Select</th>
-                          <th className="px-4 py-2">Name</th>
-                          <th className="px-4 py-2">Phone (Masked)</th>
-                          <th className="px-4 py-2">Email (Masked)</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-800 font-mono text-[11px]">
-                        {dbContacts.length === 0 ? (
-                          <tr>
-                            <td colSpan={4} className="text-center py-8 text-slate-500 font-semibold">
-                              Directory is empty for group '${selectedRoleGroup}'. Contact admin to import.
-                            </td>
-                          </tr>
-                        ) : (
-                          dbContacts
-                            .filter((c) => {
-                              return (
-                                c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                c.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                c.email.toLowerCase().includes(searchQuery.toLowerCase())
-                              );
-                            })
-                            .map((contact) => (
-                              <tr key={contact.id} className="hover:bg-slate-900/40">
-                                <td className="px-4 py-2.5 text-center">
-                                  <input
-                                    type="checkbox"
-                                    checked={!!selectedContacts[contact.id]}
-                                    onChange={(e) => toggleSelectContact(contact.id, e.target.checked)}
-                                    className="rounded border-slate-700 bg-slate-900 text-emerald-600 focus:ring-emerald-500 h-3.5 w-3.5 cursor-pointer"
-                                  />
-                                </td>
-                                <td className="px-4 py-2.5 text-slate-300 font-semibold">{contact.name}</td>
-                                <td className="px-4 py-2.5 text-slate-300">{maskPhoneNumber(contact.phone)}</td>
-                                <td className="px-4 py-2.5 text-slate-400">{maskEmailAddress(contact.email)}</td>
-                              </tr>
-                            ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Notice Composer */}
-            <div className="space-y-4 pt-3 border-t border-slate-800">
-              
-              <div className="flex items-center gap-6">
-                <div className="inline-flex items-center text-xs font-bold text-slate-300">
-                  <Smartphone className="w-4 h-4 text-emerald-500 mr-1.5" />
-                  WhatsApp Direct Utility Broadcast (Meta Cloud API)
-                </div>
-              </div>
-
-              {/* Message Body */}
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-bold text-slate-300">Message Body (WhatsApp Text)</label>
-                  <span className="text-[9px] text-slate-500 font-mono">{broadcastMessage.length} chars</span>
-                </div>
-                <textarea
-                  rows={6}
-                  value={broadcastMessage}
-                  onChange={(e) => setBroadcastMessage(e.target.value)}
-                  className={`w-full px-3.5 py-2.5 rounded-xl outline-none text-xs transition-all leading-relaxed font-mono ${
-                    isDark ? "dark-input" : "light-input"
-                  }`}
-                  placeholder="Hello {{name}}, welcome back..."
-                />
-                
-                {/* Tag Chips */}
-                <div className="flex items-center gap-1.5 flex-wrap mt-2">
-                  <span className="text-[9px] uppercase font-bold text-slate-500">Insert tag:</span>
-                  {["name", "phone", "email"].map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => setBroadcastMessage(prev => prev + ` {{${tag}}}`)}
-                      className="px-2 py-0.5 border border-slate-800 text-[10px] font-mono rounded bg-slate-900 text-emerald-400 hover:text-emerald-350 transition-colors cursor-pointer"
-                    >
-                      +&#123;&#123;{tag}&#125;&#125;
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Preview - WhatsApp Chat Bubble Preview ONLY */}
-              <div className="pt-4 border-t border-slate-800 flex justify-center">
-                <div className="w-full max-w-md space-y-1.5">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase text-center">WhatsApp Chat Bubble Preview</div>
-                  <div className="bg-[#0b141a] border border-slate-850 rounded-2xl p-4 flex flex-col justify-between min-h-[140px] relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')" }}>
-                    <div className="absolute inset-0 bg-[#0b141a]/95 pointer-events-none"></div>
-                    
-                    <div className="relative z-10 bg-[#005c4b] text-[#e9edef] rounded-2xl rounded-tr-none px-3.5 py-2 text-xs max-w-[85%] self-end shadow-md font-sans">
-                      <p className="whitespace-pre-wrap">
-                        {(() => {
-                          let sampleName = "Recipient Name";
-                          let samplePhone = "91******210";
-                          let sampleEmail = "r***t@jecrc.edu.in";
-
-                          if (selectedRoleGroup === "Custom") {
-                            sampleName = customContact.name || "Recipient Name";
-                            samplePhone = customContact.phone || "919876543210";
-                            sampleEmail = customContact.email || "recipient@jecrc.edu.in";
-                          } else if (dbContacts.length > 0) {
-                            const first = dbContacts[0];
-                            sampleName = first.name || "Recipient Name";
-                            samplePhone = maskPhoneNumber(first.phone);
-                            sampleEmail = maskEmailAddress(first.email);
-                          }
-
-                          return broadcastMessage
-                            .replace(/{{name}}/gi, sampleName)
-                            .replace(/{{phone}}/gi, samplePhone)
-                            .replace(/{{email}}/gi, sampleEmail);
-                        })()}
-                      </p>
-                      <div className="text-[9px] text-[#8696a0] text-right mt-1 font-sans font-medium">
-                        {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ✓✓
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Submit Dispatch Action */}
-              <div className="pt-2 flex justify-end">
-                <button
-                  onClick={handleBroadcastSend}
-                  disabled={isBroadcasting}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl text-xs font-bold text-white transition-all shadow-md ${
-                    isBroadcasting
-                      ? "bg-slate-700 text-slate-500 cursor-not-allowed border border-slate-800"
-                      : "bg-emerald-600 hover:bg-emerald-750 shadow-emerald-500/10 cursor-pointer active:scale-95"
-                  }`}
-                >
-                  {isBroadcasting ? (
-                    <>
-                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1.5" />
-                      <span>Broadcasting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-3.5 h-3.5" />
-                      <span>Send WhatsApp Broadcast</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-            </div></div>
-        </div>
       )}
       </div>
 
