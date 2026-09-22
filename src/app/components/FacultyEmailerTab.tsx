@@ -348,8 +348,8 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
   const generatedHtml = generateFacultyWelcomeEmailHtml({
     ...facultyForm,
     photoUrl: photoPreview,
-    bannerLogoUrl: getAssetUrl("/emailer-assets/jecrc-banner-clean.png"),
-    welcomeAboardUrl: getAssetUrl("/emailer-assets/welcome-aboard-clean.png"),
+    bannerLogoUrl: getAssetUrl(`/emailer-assets/jecrc-banner-clean.png?t=${Date.now()}`),
+    welcomeAboardUrl: undefined,
   });
 
   // Copy HTML

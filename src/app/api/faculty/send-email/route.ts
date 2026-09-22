@@ -123,30 +123,12 @@ export async function POST(req: Request) {
 
     const hasBannerCid = attachments.some((a) => a.cid === "jecrcBanner");
 
-    // Welcome Aboard headline attachment
-    try {
-      const welcomePath = path.join(process.cwd(), "public", "emailer-assets", "welcome-aboard-clean.png");
-      if (fs.existsSync(welcomePath)) {
-        const welcomeBuffer = fs.readFileSync(welcomePath);
-        attachments.push({
-          filename: "welcome-aboard.png",
-          content: welcomeBuffer,
-          cid: "welcomeAboard",
-          contentType: "image/png",
-        });
-      }
-    } catch (e) {
-      // continue
-    }
-
-    const hasWelcomeCid = attachments.some((a) => a.cid === "welcomeAboard");
-
     // Generate HTML with CID image sources
     const htmlEmail = generateFacultyWelcomeEmailHtml({
       ...facultyData,
       photoUrl: photoImgSrc,
       bannerLogoUrl: hasBannerCid ? "cid:jecrcBanner" : undefined,
-      welcomeAboardUrl: hasWelcomeCid ? "cid:welcomeAboard" : undefined,
+      welcomeAboardUrl: undefined,
     });
 
     const subject = customSubject || `Welcome Aboard - ${facultyData.name} | JECRC University`;
