@@ -349,7 +349,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
     ...facultyForm,
     photoUrl: photoPreview,
     bannerLogoUrl: getAssetUrl(`/emailer-assets/jecrc-banner-clean.jpeg?t=${Date.now()}`),
-    welcomeAboardUrl: getAssetUrl(`/emailer-assets/welcome-aboard-clean.png?t=${Date.now()}`),
+    welcomeAboardUrl: getAssetUrl(`/emailer-assets/welcome-aboard-transparent.png?t=${Date.now()}`),
   });
 
   // Copy HTML

@@ -134,7 +134,7 @@ export async function POST(req: Request) {
 
     // Welcome Aboard headline attachment
     try {
-      const welcomePath = path.join(process.cwd(), "public", "emailer-assets", "welcome-aboard-clean.png");
+      const welcomePath = path.join(process.cwd(), "public", "emailer-assets", "welcome-aboard-transparent.png");
       if (fs.existsSync(welcomePath)) {
         const welcomeBuffer = fs.readFileSync(welcomePath);
         attachments.push({

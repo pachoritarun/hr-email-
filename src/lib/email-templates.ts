@@ -101,7 +101,7 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
       <td align="center" valign="top" style="padding: 0 8px;">
         
         <!-- Main Email Container Card -->
-        <table class="main-table" width="620" border="0" cellpadding="0" cellspacing="0" style="width: 620px; max-width: 620px; margin: 0 auto; background: #920a21; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(146,10,33,0.2);">
+        <table class="main-table" width="620" border="0" cellpadding="0" cellspacing="0" style="width: 620px; max-width: 620px; margin: 0 auto; background: #b8001f; background: linear-gradient(160deg, #9e0017 0%, #c8102e 45%, #880012 100%); border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(184,0,31,0.2);">
           
           <!-- Row 1: Top White Rounded Header Pill -->
           <tr>
