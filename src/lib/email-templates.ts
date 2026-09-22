@@ -101,7 +101,7 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
       <td align="center" valign="top" style="padding: 0 8px;">
         
         <!-- Main Email Container Card -->
-        <table class="main-table" width="620" border="0" cellpadding="0" cellspacing="0" style="width: 620px; max-width: 620px; margin: 0 auto; background: #a0091e; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(160,9,30,0.2);">
+        <table class="main-table" width="620" border="0" cellpadding="0" cellspacing="0" style="width: 620px; max-width: 620px; margin: 0 auto; background: #920a21; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(146,10,33,0.2);">
           
           <!-- Row 1: Top White Rounded Header Pill -->
           <tr>
@@ -111,7 +111,7 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
                   <td align="center" style="padding: 8px 16px;">
                     ${
                       bannerLogoUrl
-                        ? `<img src="${bannerLogoUrl}" alt="JECRC University Header" width="380" style="display: block; margin: 0 auto; width: 100%; max-width: 380px; height: auto; border: 0; padding: 12px 0;" />`
+                        ? `<img src="${bannerLogoUrl}" alt="JECRC University Header" width="320" style="display: block; margin: 0 auto; width: 100%; max-width: 320px; height: auto; border: 0; padding: 4px 0;" />`
                         : `
                         <table width="100%" border="0" cellpadding="0" cellspacing="0">
                           <tr>
@@ -140,10 +140,10 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
 
           <!-- Row 2: "Welcome Aboard" Headline (Image with Fallback Font for Gmail/Outlook) -->
           <tr>
-            <td align="center" style="padding: 22px 20px 12px 20px; overflow: visible;">
+            <td align="center" style="padding: 16px 20px 8px 20px; overflow: visible;">
               ${
                 welcomeAboardUrl
-                  ? `<img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="300" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" />`
+                  ? `<img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="440" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" />`
                   : `
                   <div style="padding: 0 16px;">
                     <span class="welcome-script" style="font-family: 'Brush Script MT', 'Great Vibes', 'Caveat', cursive; font-size: 46px; color: #ffffff; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.3); display: inline-block; padding-left: 8px;">
