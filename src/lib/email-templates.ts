@@ -106,12 +106,12 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
           <!-- Row 1: Top White Rounded Header Pill -->
           <tr>
             <td align="center" style="padding: 0 20px;">
-              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 480px; margin: 0 auto; background-color: #ffffff; border-radius: 0 0 18px 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);">
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 400px; margin: 0 auto; background-color: #ffffff; border-radius: 0 0 18px 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);">
                 <tr>
-                  <td align="center" style="padding: 8px 16px;">
+                  <td align="center" style="padding: 6px 10px;">
                     ${
                       bannerLogoUrl
-                        ? `<img src="${bannerLogoUrl}" alt="JECRC University Header" width="260" style="display: block; margin: 0 auto; width: 100%; max-width: 260px; height: auto; border: 0; padding: 4px 0;" />`
+                        ? `<img src="${bannerLogoUrl}" alt="JECRC University Header" width="380" style="display: block; margin: 0 auto; width: 100%; max-width: 380px; height: auto; border: 0; padding: 2px 0;" />`
                         : `
                         <table width="100%" border="0" cellpadding="0" cellspacing="0">
                           <tr>
