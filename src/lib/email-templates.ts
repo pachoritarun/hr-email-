@@ -111,7 +111,7 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
                   <td align="center" style="padding: 8px 16px;">
                     ${
                       bannerLogoUrl
-                        ? `<img src="${bannerLogoUrl}" alt="JECRC University Header" width="320" style="display: block; margin: 0 auto; width: 100%; max-width: 320px; height: auto; border: 0; padding: 4px 0;" />`
+                        ? `<img src="${bannerLogoUrl}" alt="JECRC University Header" width="260" style="display: block; margin: 0 auto; width: 100%; max-width: 260px; height: auto; border: 0; padding: 4px 0;" />`
                         : `
                         <table width="100%" border="0" cellpadding="0" cellspacing="0">
                           <tr>
@@ -143,7 +143,7 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
             <td align="center" style="padding: 10px 20px 0px 20px; overflow: visible;">
               ${
                 welcomeAboardUrl
-                  ? `<img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="420" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" />`
+                  ? `<img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="480" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" />`
                   : `
                   <div style="padding: 0 16px;">
                     <span class="welcome-script" style="font-family: 'Brush Script MT', 'Great Vibes', 'Caveat', cursive; font-size: 40px; color: #ffffff; line-height: 1.1; text-shadow: 0 2px 8px rgba(0,0,0,0.3); display: inline-block; padding-left: 8px;">
