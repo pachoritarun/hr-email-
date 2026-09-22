@@ -101,7 +101,7 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
       <td align="center" valign="top" style="padding: 0 8px;">
         
         <!-- Main Email Container Card -->
-        <table class="main-table" width="620" border="0" cellpadding="0" cellspacing="0" style="width: 620px; max-width: 620px; margin: 0 auto; background: #b8001f; background: linear-gradient(160deg, #9e0017 0%, #c8102e 45%, #880012 100%); border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(184,0,31,0.2);">
+        <table class="main-table" width="620" border="0" cellpadding="0" cellspacing="0" style="width: 620px; max-width: 620px; margin: 0 auto; background: #a0091e; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(160,9,30,0.2);">
           
           <!-- Row 1: Top White Rounded Header Pill -->
           <tr>
@@ -143,7 +143,7 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
             <td align="center" style="padding: 22px 20px 12px 20px; overflow: visible;">
               ${
                 welcomeAboardUrl
-                  ? `<img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="400" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" />`
+                  ? `<img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="300" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" />`
                   : `
                   <div style="padding: 0 16px;">
                     <span class="welcome-script" style="font-family: 'Brush Script MT', 'Great Vibes', 'Caveat', cursive; font-size: 46px; color: #ffffff; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.3); display: inline-block; padding-left: 8px;">
