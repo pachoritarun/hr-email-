@@ -97,10 +97,19 @@ export async function POST(req: Request) {
 
     // Header banner attachment
     try {
+      const bannerJpegPath = path.join(process.cwd(), "public", "emailer-assets", "jecrc-banner-clean.jpeg");
       const bannerJpgPath = path.join(process.cwd(), "public", "emailer-assets", "jecrc-banner-clean.jpg");
       const bannerPngPath = path.join(process.cwd(), "public", "emailer-assets", "jecrc-banner-clean.png");
       
-      if (fs.existsSync(bannerJpgPath)) {
+      if (fs.existsSync(bannerJpegPath)) {
+        const bannerBuffer = fs.readFileSync(bannerJpegPath);
+        attachments.push({
+          filename: "jecrc-banner.jpeg",
+          content: bannerBuffer,
+          cid: "jecrcBanner",
+          contentType: "image/jpeg",
+        });
+      } else if (fs.existsSync(bannerJpgPath)) {
         const bannerBuffer = fs.readFileSync(bannerJpgPath);
         attachments.push({
           filename: "jecrc-banner.jpg",
@@ -123,12 +132,30 @@ export async function POST(req: Request) {
 
     const hasBannerCid = attachments.some((a) => a.cid === "jecrcBanner");
 
+    // Welcome Aboard headline attachment
+    try {
+      const welcomePath = path.join(process.cwd(), "public", "emailer-assets", "welcome-aboard-clean.png");
+      if (fs.existsSync(welcomePath)) {
+        const welcomeBuffer = fs.readFileSync(welcomePath);
+        attachments.push({
+          filename: "welcome-aboard.png",
+          content: welcomeBuffer,
+          cid: "welcomeAboard",
+          contentType: "image/png",
+        });
+      }
+    } catch (e) {
+      // continue
+    }
+
+    const hasWelcomeCid = attachments.some((a) => a.cid === "welcomeAboard");
+
     // Generate HTML with CID image sources
     const htmlEmail = generateFacultyWelcomeEmailHtml({
       ...facultyData,
       photoUrl: photoImgSrc,
       bannerLogoUrl: hasBannerCid ? "cid:jecrcBanner" : undefined,
-      welcomeAboardUrl: undefined,
+      welcomeAboardUrl: hasWelcomeCid ? "cid:welcomeAboard" : undefined,
     });
 
     const subject = customSubject || `Welcome Aboard - ${facultyData.name} | JECRC University`;

@@ -143,7 +143,7 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
             <td align="center" style="padding: 22px 20px 12px 20px; overflow: visible;">
               ${
                 welcomeAboardUrl
-                  ? `<div style="padding: 0 12px;"><img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="280" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" /></div>`
+                  ? `<img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="400" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" />`
                   : `
                   <div style="padding: 0 16px;">
                     <span class="welcome-script" style="font-family: 'Brush Script MT', 'Great Vibes', 'Caveat', cursive; font-size: 46px; color: #ffffff; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.3); display: inline-block; padding-left: 8px;">
