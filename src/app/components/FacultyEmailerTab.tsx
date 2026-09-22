@@ -372,7 +372,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
               <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full bg-red-600/15 text-red-500 border border-red-500/30">
                 Official JECRC HR Portal
               </span>
-              <span className="text-xs text-slate-400">Direct SMTP Send &amp; MySQL Stored</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">Direct SMTP Send &amp; MySQL Stored</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black mt-2 tracking-tight text-slate-900 dark:text-slate-100">
               New Faculty &amp; Professor "Welcome Aboard" Emailer
@@ -387,7 +387,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
               onClick={handleLoadSample}
               className={`px-4 py-2.5 rounded-xl text-xs font-semibold border flex items-center space-x-2 transition-all cursor-pointer ${
                 isDark
-                  ? "bg-slate-900 border-slate-700 text-slate-200 hover:bg-slate-800"
+                  ? "bg-slate-900 border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-800"
                   : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-sm"
               }`}
             >
@@ -398,7 +398,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
               onClick={handleClearForm}
               className={`px-4 py-2.5 rounded-xl text-xs font-semibold border flex items-center space-x-2 transition-all cursor-pointer ${
                 isDark
-                  ? "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                  ? "bg-slate-900 border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-200"
                   : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -421,7 +421,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
           <div className={`p-6 rounded-3xl border transition-all ${
             isDark ? "dark-glass border-slate-800 shadow-xl" : "light-glass border-slate-200"
           }`}>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-between">
               <span>1. Professor Portrait Photo</span>
               <span className="text-[10px] text-blue-500 lowercase font-normal">stored in MySQL</span>
             </label>
@@ -470,7 +470,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
           <div className={`p-6 rounded-3xl border space-y-4 transition-all ${
             isDark ? "dark-glass border-slate-800 shadow-xl" : "light-glass border-slate-200"
           }`}>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center space-x-2">
               <GraduationCap className="w-4 h-4 text-red-500" />
               <span>2. Professor Details</span>
             </h3>
@@ -610,7 +610,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
             isDark ? "dark-glass border-slate-800 shadow-xl" : "light-glass border-slate-200"
           }`}>
             <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-slate-800">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center space-x-2">
                 <Lock className="w-4 h-4 text-emerald-500" />
                 <span>3. Direct SMTP Sender &amp; Password</span>
               </h3>
@@ -643,7 +643,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                     <Key className="w-3.5 h-3.5 text-amber-500" />
                     <span>Google App Password / SMTP Password</span>
                   </label>
-                  <span className="text-[10px] text-slate-400">16 characters</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">16 characters</span>
                 </div>
                 <div className="relative">
                   <input
@@ -658,7 +658,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-200 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -684,7 +684,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                   <div className="mt-2.5 p-3 rounded-xl border space-y-2.5 bg-slate-900/50 border-slate-800 text-xs">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[10px] text-slate-400 mb-0.5">SMTP Host</label>
+                        <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">SMTP Host</label>
                         <input
                           type="text"
                           value={smtpHost}
@@ -693,7 +693,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] text-slate-400 mb-0.5">Port (SSL/TLS)</label>
+                        <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Port (SSL/TLS)</label>
                         <input
                           type="number"
                           value={smtpPort}
@@ -703,7 +703,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[10px] text-slate-400 mb-0.5">Sender Name &amp; Email</label>
+                      <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Sender Name &amp; Email</label>
                       <input
                         type="text"
                         value={smtpFrom}
@@ -735,7 +735,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                         ? "bg-red-500/10 border-red-500/40 text-slate-100"
                         : "bg-red-50 border-red-300 text-slate-900 font-medium"
                       : isDark
-                      ? "border-slate-800/80 hover:bg-slate-900/60 text-slate-400"
+                      ? "border-slate-800/80 hover:bg-slate-900/60 text-slate-500 dark:text-slate-400"
                       : "border-slate-200 hover:bg-slate-50 text-slate-600"
                   }`}
                 >
@@ -825,7 +825,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                 disabled={isSaving}
                 className={`px-4 py-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center space-x-2 cursor-pointer active:scale-95 ${
                   isDark
-                    ? "bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700"
+                    ? "bg-slate-800 hover:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-700"
                     : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300"
                 }`}
               >
@@ -856,7 +856,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
             isDark ? "bg-slate-900/90 border-slate-800" : "bg-white border-slate-200 shadow-sm"
           }`}>
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mr-2 flex items-center gap-1.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mr-2 flex items-center gap-1.5">
                 <Eye className="w-4 h-4 text-red-500" />
                 <span>Live Flyer Preview</span>
               </span>
@@ -867,7 +867,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer ${
                   previewMode === "desktop"
                     ? "bg-red-600 text-white shadow-sm"
-                    : "text-slate-400 hover:text-slate-200"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-200"
                 }`}
               >
                 <Monitor className="w-3.5 h-3.5" />
@@ -879,7 +879,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer ${
                   previewMode === "mobile"
                     ? "bg-red-600 text-white shadow-sm"
-                    : "text-slate-400 hover:text-slate-200"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-200"
                 }`}
               >
                 <Smartphone className="w-3.5 h-3.5" />
@@ -891,7 +891,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer ${
                   previewMode === "code"
                     ? "bg-red-600 text-white shadow-sm"
-                    : "text-slate-400 hover:text-slate-200"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-200"
                 }`}
               >
                 <FileCode className="w-3.5 h-3.5" />
@@ -906,7 +906,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                 copiedCode
                   ? "bg-emerald-600 text-white border-emerald-600"
                   : isDark
-                  ? "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+                  ? "bg-slate-800 border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-700"
                   : "bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-100"
               }`}
             >
@@ -970,7 +970,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
           <button
             onClick={fetchSavedFaculty}
             disabled={isLoadingSaved}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-200 transition-all cursor-pointer"
+            className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-200 transition-all cursor-pointer"
             title="Refresh database records"
           >
             <RefreshCw className={`w-4 h-4 ${isLoadingSaved ? "animate-spin" : ""}`} />
@@ -981,7 +981,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
         {savedFaculty.length === 0 ? (
           <div className="text-center py-10 border border-dashed rounded-2xl border-slate-700/50">
             <User className="w-10 h-10 text-slate-500 mx-auto mb-2" />
-            <div className="text-sm font-semibold text-slate-400">No professors saved in MySQL yet</div>
+            <div className="text-sm font-semibold text-slate-500 dark:text-slate-400">No professors saved in MySQL yet</div>
             <div className="text-xs text-slate-500 mt-1">
               Fill in the form above and click "Save to MySQL" to create a permanent record.
             </div>
@@ -989,7 +989,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className={`border-b ${isDark ? "border-slate-800 text-slate-400" : "border-slate-200 text-slate-500"}`}>
+              <thead className={`border-b ${isDark ? "border-slate-800 text-slate-500 dark:text-slate-400" : "border-slate-200 text-slate-500"}`}>
                 <tr>
                   <th className="py-3 px-4">Photo</th>
                   <th className="py-3 px-4">Professor Name</th>
@@ -1019,21 +1019,21 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                         />
                       </div>
                     </td>
-                    <td className="py-3 px-4 font-bold text-slate-200">
+                    <td className="py-3 px-4 font-bold text-slate-800 dark:text-slate-200">
                       {item.name}
                     </td>
                     <td className="py-3 px-4">
-                      <div className="font-semibold text-slate-300">{item.designation}</div>
+                      <div className="font-semibold text-slate-700 dark:text-slate-300">{item.designation}</div>
                       <div className="text-slate-500 text-[11px]">{item.department}</div>
                     </td>
-                    <td className="py-3 px-4 font-mono text-slate-400">
+                    <td className="py-3 px-4 font-mono text-slate-500 dark:text-slate-400">
                       {item.email}
                     </td>
                     <td className="py-3 px-4">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                         (item.sent_count || 0) > 0
-                          ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                          : "bg-slate-800 text-slate-400"
+                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                          : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                       }`}>
                         {item.sent_count || 0} times
                       </span>
