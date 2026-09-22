@@ -140,13 +140,13 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
 
           <!-- Row 2: "Welcome Aboard" Headline (Image with Fallback Font for Gmail/Outlook) -->
           <tr>
-            <td align="center" style="padding: 16px 20px 8px 20px; overflow: visible;">
+            <td align="center" style="padding: 10px 20px 0px 20px; overflow: visible;">
               ${
                 welcomeAboardUrl
-                  ? `<img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="440" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" />`
+                  ? `<img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="420" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" />`
                   : `
                   <div style="padding: 0 16px;">
-                    <span class="welcome-script" style="font-family: 'Brush Script MT', 'Great Vibes', 'Caveat', cursive; font-size: 46px; color: #ffffff; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.3); display: inline-block; padding-left: 8px;">
+                    <span class="welcome-script" style="font-family: 'Brush Script MT', 'Great Vibes', 'Caveat', cursive; font-size: 40px; color: #ffffff; line-height: 1.1; text-shadow: 0 2px 8px rgba(0,0,0,0.3); display: inline-block; padding-left: 8px;">
                       Welcome Aboard
                     </span>
                   </div>
@@ -161,8 +161,8 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
               <table width="100%" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <!-- Left Architectural Accent Line -->
-                  <td align="right" valign="bottom" style="width: 30%; padding-bottom: 28px; padding-right: 16px;">
-                    <div style="height: 90px; width: 2px; background-color: rgba(255,255,255,0.45); margin-left: auto;"></div>
+                  <td align="right" valign="bottom" style="width: 30%; padding-bottom: 16px; padding-right: 16px;">
+                    <div style="height: 50px; width: 2px; background-color: rgba(255,255,255,0.45); margin-left: auto;"></div>
                   </td>
 
                   <!-- Center Arched Photo Frame -->
@@ -170,8 +170,8 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
                     <table border="0" cellpadding="0" cellspacing="0">
                       <tr>
                         <td align="center" style="padding-bottom: 0;">
-                          <div class="photo-frame" style="width: 235px; height: 260px; border-radius: 120px 120px 0 0; background-color: #ffffff; overflow: hidden; border: 4px solid #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.25);">
-                            <img src="${photoUrl}" alt="${escapeHtml(name)}" width="235" height="260" style="display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 116px 116px 0 0; border: 0;" />
+                          <div class="photo-frame" style="width: 190px; height: 210px; border-radius: 95px 95px 0 0; background-color: #ffffff; overflow: hidden; border: 4px solid #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.25);">
+                            <img src="${photoUrl}" alt="${escapeHtml(name)}" width="190" height="210" style="display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 91px 91px 0 0; border: 0;" />
                           </div>
                         </td>
                       </tr>
@@ -179,8 +179,8 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
                   </td>
 
                   <!-- Right Architectural Accent Line -->
-                  <td align="left" valign="bottom" style="width: 30%; padding-bottom: 28px; padding-left: 16px;">
-                    <div style="height: 90px; width: 2px; background-color: rgba(255,255,255,0.45); margin-right: auto;"></div>
+                  <td align="left" valign="bottom" style="width: 30%; padding-bottom: 16px; padding-left: 16px;">
+                    <div style="height: 50px; width: 2px; background-color: rgba(255,255,255,0.45); margin-right: auto;"></div>
                   </td>
                 </tr>
               </table>
@@ -189,22 +189,22 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
 
           <!-- Row 4: Announcement Content Card -->
           <tr>
-            <td align="center" style="padding: 0 18px 22px 18px;">
+            <td align="center" style="padding: 0 18px 16px 18px;">
               <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f1f2f5; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);">
                 <tr>
-                  <td class="content-padding" style="padding: 26px 32px 32px 32px;">
+                  <td class="content-padding" style="padding: 20px 28px 24px 28px;">
                     
                     <!-- Professor Name -->
                     <table width="100%" border="0" cellpadding="0" cellspacing="0">
                       <tr>
                         <td align="center">
-                          <h1 class="name-heading" style="margin: 0; font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif; font-size: 26px; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; line-height: 1.25;">
+                          <h1 class="name-heading" style="margin: 0; font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif; font-size: 24px; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; line-height: 1.2;">
                             ${escapeHtml(name)}
                           </h1>
-                          <div style="margin-top: 6px; font-size: 16px; font-weight: 700; color: #334155; letter-spacing: -0.2px;">
+                          <div style="margin-top: 4px; font-size: 15px; font-weight: 700; color: #334155; letter-spacing: -0.2px;">
                             ${escapeHtml(designation)}
                           </div>
-                          <div style="margin-top: 3px; font-size: 15px; font-weight: 700; color: #475569;">
+                          <div style="margin-top: 2px; font-size: 14px; font-weight: 700; color: #475569;">
                             ${escapeHtml(department)}
                           </div>
                         </td>
@@ -212,7 +212,7 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
                     </table>
 
                     <!-- Divider -->
-                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 18px 0 20px 0;">
+                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin: 14px 0 16px 0;">
                       <tr>
                         <td style="border-bottom: 1px solid #e2e8f0;"></td>
                       </tr>
@@ -229,15 +229,15 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
 
           <!-- Row 5: Official Footer -->
           <tr>
-            <td align="center" style="padding: 0 20px 20px 20px;">
+            <td align="center" style="padding: 0 20px 16px 20px;">
               <table width="100%" border="0" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td align="center" style="font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1.6; text-align: center;">
+                  <td align="center" style="font-size: 10px; color: rgba(255,255,255,0.8); line-height: 1.5; text-align: center;">
                     <div style="font-weight: 700; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase;">
                       JECRC University, Jaipur
                     </div>
                     <div>Plot No. IS-2036 to 2039, Ramchandrapura Industrial Area, Vidhani, Jaipur, Rajasthan 303905</div>
-                    <div style="margin-top: 5px;">
+                    <div style="margin-top: 4px;">
                       <a href="https://jecrcuniversity.edu.in" target="_blank" style="color: #ffffff; text-decoration: underline; font-weight: 600;">jecrcuniversity.edu.in</a>
                       &nbsp;|&nbsp;
                       Official Faculty Announcement Dispatch
