@@ -68,6 +68,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
     hobbies: DEFAULT_FACULTY.hobbies,
     email: DEFAULT_FACULTY.email,
     customBody: "",
+    subject: "",
   });
 
   // Photo management
@@ -108,7 +109,9 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
   // Dispatch settings
   const [recipientMode, setRecipientMode] = useState<"faculty_only" | "test" | "custom_list">("faculty_only");
   const [testEmail, setTestEmail] = useState("");
-  const [customEmailsInput, setCustomEmailsInput] = useState("");
+  const [customTo, setCustomTo] = useState("");
+  const [customCc, setCustomCc] = useState("");
+  const [customBcc, setCustomBcc] = useState("");
 
   // Saved faculty list from MySQL
   const [savedFaculty, setSavedFaculty] = useState<FacultyRecord[]>([]);
@@ -174,6 +177,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
       hobbies: DEFAULT_FACULTY.hobbies,
       email: DEFAULT_FACULTY.email,
       customBody: "",
+      subject: "",
     });
     setPhotoPreview(getAssetUrl("/emailer-assets/sample-professor.png"));
     setPhotoBase64("");
@@ -192,6 +196,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
       hobbies: "",
       email: "",
       customBody: "",
+      subject: "",
     });
     setPhotoPreview(getAssetUrl("/emailer-assets/sample-professor.png"));
     setPhotoBase64("");
@@ -249,6 +254,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
       hobbies: record.hobbies || "",
       email: record.email,
       customBody: "",
+      subject: "",
     });
 
     if (record.id) {
@@ -294,11 +300,6 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
     const toastId = toast.loading("Dispatching Welcome Aboard announcement email...");
 
     try {
-      const customEmails = customEmailsInput
-        .split(/[,;\n]/)
-        .map((e) => e.trim())
-        .filter((e) => e.length > 0);
-
       const activeSmtp = {
         host: smtpHost,
         port: Number(smtpPort) || 465,
@@ -317,7 +318,10 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
         smtpConfig: activeSmtp,
         recipientMode,
         testEmail,
-        customEmails,
+        customTo,
+        customCc,
+        customBcc,
+        customSubject: facultyForm.subject || undefined,
       };
 
       const res = await fetch(`${BASE_PATH}/api/faculty/send-email`, {
@@ -583,6 +587,22 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
                 }`}
               />
             </div>
+
+            {/* Custom Email Subject */}
+            <div>
+              <label className="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                Email Subject (Optional)
+              </label>
+              <input
+                type="text"
+                value={facultyForm.subject || ""}
+                onChange={(e) => setFacultyForm({ ...facultyForm, subject: e.target.value })}
+                placeholder={`Welcome Aboard - ${facultyForm.name || 'Professor'} | JECRC University`}
+                className={`w-full px-3.5 py-2.5 rounded-xl text-sm border focus:outline-none transition-all ${
+                  isDark ? "dark-input" : "light-input"
+                }`}
+              />
+            </div>
           </div>
 
           {/* Card 3: DIRECT SMTP & DISPATCH CONFIGURATION */}
@@ -705,7 +725,7 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
               {[
                 { id: "faculty_only", label: `Send directly to this Professor (${facultyForm.email || "No email entered"})` },
                 { id: "test", label: "Send a Test Email to my address" },
-                { id: "custom_list", label: "Custom Recipient List (comma-separated emails)" },
+                { id: "custom_list", label: "Advanced HR Bulk Dispatch (To, Cc, Bcc)" },
               ].map((opt) => (
                 <label
                   key={opt.id}
@@ -749,21 +769,51 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
               </div>
             )}
 
-            {/* Conditional input for custom emails */}
+            {/* Conditional input for custom bulk emails */}
             {recipientMode === "custom_list" && (
-              <div>
-                <label className="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
-                  Enter comma-separated emails
-                </label>
-                <textarea
-                  rows={2}
-                  value={customEmailsInput}
-                  onChange={(e) => setCustomEmailsInput(e.target.value)}
-                  placeholder="dean@jecrcu.edu.in, hod.forensic@jecrcu.edu.in"
-                  className={`w-full px-3 py-2 rounded-xl text-xs border focus:outline-none resize-none ${
-                    isDark ? "dark-input" : "light-input"
-                  }`}
-                />
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                    To (Comma-separated)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customTo}
+                    onChange={(e) => setCustomTo(e.target.value)}
+                    placeholder="faculty@jecrcu.edu.in, staff@jecrcu.edu.in"
+                    className={`w-full px-3 py-2 rounded-xl text-xs border focus:outline-none resize-none ${
+                      isDark ? "dark-input" : "light-input"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                    Cc (Comma-separated)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={customCc}
+                    onChange={(e) => setCustomCc(e.target.value)}
+                    placeholder="president@jecrcu.edu.in, registrar@jecrcu.edu.in"
+                    className={`w-full px-3 py-2 rounded-xl text-xs border focus:outline-none resize-none ${
+                      isDark ? "dark-input" : "light-input"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                    Bcc (Comma-separated)
+                  </label>
+                  <textarea
+                    rows={1}
+                    value={customBcc}
+                    onChange={(e) => setCustomBcc(e.target.value)}
+                    placeholder="hidden.hr@jecrcu.edu.in"
+                    className={`w-full px-3 py-2 rounded-xl text-xs border focus:outline-none resize-none ${
+                      isDark ? "dark-input" : "light-input"
+                    }`}
+                  />
+                </div>
               </div>
             )}
 

@@ -13,7 +13,10 @@ export async function POST(req: Request) {
       smtpConfig,
       recipientMode = "faculty_only", // "faculty_only" | "test" | "all_directory" | "custom_list"
       testEmail,
-      customEmails = [],
+      customTo,
+      customCc,
+      customBcc,
+      customSubject,
     } = await req.json();
 
     if (!smtpConfig || !smtpConfig.host || !smtpConfig.user || !smtpConfig.pass) {
@@ -94,9 +97,19 @@ export async function POST(req: Request) {
 
     // Header banner attachment
     try {
-      const bannerPath = path.join(process.cwd(), "public", "emailer-assets", "jecrc-banner-clean.png");
-      if (fs.existsSync(bannerPath)) {
-        const bannerBuffer = fs.readFileSync(bannerPath);
+      const bannerJpgPath = path.join(process.cwd(), "public", "emailer-assets", "jecrc-banner-clean.jpg");
+      const bannerPngPath = path.join(process.cwd(), "public", "emailer-assets", "jecrc-banner-clean.png");
+      
+      if (fs.existsSync(bannerJpgPath)) {
+        const bannerBuffer = fs.readFileSync(bannerJpgPath);
+        attachments.push({
+          filename: "jecrc-banner.jpg",
+          content: bannerBuffer,
+          cid: "jecrcBanner",
+          contentType: "image/jpeg",
+        });
+      } else if (fs.existsSync(bannerPngPath)) {
+        const bannerBuffer = fs.readFileSync(bannerPngPath);
         attachments.push({
           filename: "jecrc-banner.png",
           content: bannerBuffer,
@@ -136,7 +149,7 @@ export async function POST(req: Request) {
       welcomeAboardUrl: hasWelcomeCid ? "cid:welcomeAboard" : undefined,
     });
 
-    const subject = `Welcome Aboard - ${facultyData.name} | JECRC University`;
+    const subject = customSubject || `Welcome Aboard - ${facultyData.name} | JECRC University`;
 
     // Determine target recipient list
     let recipients: string[] = [];
@@ -146,7 +159,42 @@ export async function POST(req: Request) {
     } else if (recipientMode === "test") {
       if (testEmail) recipients.push(testEmail);
     } else if (recipientMode === "custom_list") {
-      recipients = customEmails.filter((e: string) => e && e.includes("@"));
+      try {
+        await transporter.sendMail({
+          from: smtpConfig.from,
+          to: customTo || undefined,
+          cc: customCc || undefined,
+          bcc: customBcc || undefined,
+          subject,
+          html: htmlEmail,
+          attachments,
+        });
+
+        // Update sent stats in database if facultyId exists
+        if (facultyId) {
+          try {
+            const pool = await getDbPool();
+            await pool.query(
+              "UPDATE faculty_onboarding SET sent_count = sent_count + 1, last_sent_at = NOW() WHERE id = ?",
+              [facultyId]
+            );
+          } catch (dbErr) {
+            console.error("Failed to update sent count:", dbErr);
+          }
+        }
+
+        return NextResponse.json({
+          success: true,
+          message: `Successfully dispatched bulk email to specified recipients.`,
+          results: [{ email: "Bulk Dispatch", success: true }],
+        });
+      } catch (err: any) {
+        console.error(`Error sending bulk email:`, err);
+        return NextResponse.json(
+          { success: false, error: err.message || "Failed to send bulk email" },
+          { status: 500 }
+        );
+      }
     } else if (recipientMode === "all_directory") {
       // Fetch all Faculty contacts from MySQL
       const pool = await getDbPool();

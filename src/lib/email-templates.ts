@@ -111,7 +111,7 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
                   <td align="center" style="padding: 8px 16px;">
                     ${
                       bannerLogoUrl
-                        ? `<img src="${bannerLogoUrl}" alt="JECRC University Header" width="420" style="display: block; width: 100%; max-width: 420px; height: auto; border: 0;" />`
+                        ? `<img src="${bannerLogoUrl}" alt="JECRC University Header" width="380" style="display: block; margin: 0 auto; width: 100%; max-width: 380px; height: auto; border: 0; padding: 12px 0;" />`
                         : `
                         <table width="100%" border="0" cellpadding="0" cellspacing="0">
                           <tr>
@@ -140,14 +140,16 @@ export function generateFacultyWelcomeEmailHtml(data: FacultyEmailData): string 
 
           <!-- Row 2: "Welcome Aboard" Headline (Image with Fallback Font for Gmail/Outlook) -->
           <tr>
-            <td align="center" style="padding: 22px 20px 12px 20px;">
+            <td align="center" style="padding: 22px 20px 12px 20px; overflow: visible;">
               ${
                 welcomeAboardUrl
-                  ? `<img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="280" style="display: block; margin: 0 auto; max-width: 280px; width: 100%; height: auto; border: 0;" />`
+                  ? `<div style="padding: 0 12px;"><img src="${welcomeAboardUrl}" alt="Welcome Aboard" width="280" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; object-fit: contain;" /></div>`
                   : `
-                  <span class="welcome-script" style="font-family: 'Brush Script MT', 'Great Vibes', 'Caveat', cursive; font-size: 46px; color: #ffffff; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.3); display: block;">
-                    Welcome Aboard
-                  </span>
+                  <div style="padding: 0 16px;">
+                    <span class="welcome-script" style="font-family: 'Brush Script MT', 'Great Vibes', 'Caveat', cursive; font-size: 46px; color: #ffffff; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.3); display: inline-block; padding-left: 8px;">
+                      Welcome Aboard
+                    </span>
+                  </div>
                   `
               }
             </td>
