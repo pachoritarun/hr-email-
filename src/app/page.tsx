@@ -8,7 +8,7 @@ import {
   Zap, RefreshCw, EyeOff, Tag, Search, Filter, GraduationCap, Building2,
   BookOpen, Layers, Check, Sun, Moon, HelpCircle, X, Info, ArrowRight,
   Clock, Activity, AlertTriangle, ShieldAlert, Cpu, Lock, ChevronRight,
-  Trash2, Plus, Send, Database, History, Smartphone, UserPlus
+  Trash2, Plus, Send, Database, History, Smartphone, UserPlus, LogOut, Save
 } from "lucide-react";
 import toast from "react-hot-toast";
 import FacultyEmailerTab from "./components/FacultyEmailerTab";
@@ -73,15 +73,45 @@ export default function Dashboard() {
   const bodyInputRef = useRef<HTMLTextAreaElement>(null);
   const [dashboardTab, setDashboardTab] = useState<"faculty" | "campaign">("faculty");
 
-  // Auto-load settings on mount
+  // Portal Authentication State (username: jecrchr, password: Ai4Jecrc)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isPassSaved, setIsPassSaved] = useState(false);
+
+  // Auto-load settings & check authentication on mount
   useEffect(() => {
+    // Auth check
+    const isAuth = localStorage.getItem("jecrc_hr_auth") === "true";
+    setIsAuthenticated(isAuth);
+
     const savedTheme = localStorage.getItem("jecrc_theme") as "dark" | "light";
     const savedConfig = localStorage.getItem("jecrc_smtpConfig");
     const savedTemplate = localStorage.getItem("jecrc_emailTemplate");
+    const savedPass = localStorage.getItem("jecrc_smtp_pass");
 
     if (savedTheme) setTheme(savedTheme);
-    if (savedConfig) setSmtpConfig(JSON.parse(savedConfig));
     if (savedTemplate) setEmailTemplate(JSON.parse(savedTemplate));
+
+    let parsedConfig: any = null;
+    if (savedConfig) {
+      try {
+        parsedConfig = JSON.parse(savedConfig);
+      } catch (e) {}
+    }
+
+    if (savedPass) {
+      setIsPassSaved(true);
+      setSmtpConfig((prev) => ({
+        ...(parsedConfig || prev),
+        pass: savedPass,
+      }));
+    } else if (parsedConfig) {
+      setSmtpConfig(parsedConfig);
+    }
   }, []);
 
   // Save theme on change
@@ -92,12 +122,59 @@ export default function Dashboard() {
     toast.success(`Switched to ${nextTheme.toUpperCase()} mode`);
   };
 
+  // Login handler
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    setIsLoggingIn(true);
+
+    if (loginUsername.trim().toLowerCase() === "jecrchr" && loginPassword === "Ai4Jecrc") {
+      localStorage.setItem("jecrc_hr_auth", "true");
+      setIsAuthenticated(true);
+      setLoginPassword("");
+      toast.success("Welcome, JECRC HR Admin!");
+    } else {
+      setLoginError("Invalid username or password. Please verify credentials.");
+      toast.error("Authentication failed. Invalid username or password.");
+    }
+    setIsLoggingIn(false);
+  };
+
+  // Logout handler
+  const handleLogout = () => {
+    localStorage.removeItem("jecrc_hr_auth");
+    setIsAuthenticated(false);
+    setLoginPassword("");
+    toast.success("Logged out from JECRC HR Portal.");
+  };
+
+  // Save SMTP Password
+  const handleSaveSmtpPassword = () => {
+    if (!smtpConfig.pass.trim()) {
+      toast.error("Please enter an SMTP Password before saving.");
+      return;
+    }
+    localStorage.setItem("jecrc_smtp_pass", smtpConfig.pass.trim());
+    setIsPassSaved(true);
+    toast.success("SMTP Password saved securely in browser!");
+  };
+
+  const handleClearSmtpPassword = () => {
+    localStorage.removeItem("jecrc_smtp_pass");
+    setSmtpConfig((prev) => ({ ...prev, pass: "" }));
+    setIsPassSaved(false);
+    toast("Saved SMTP password removed.", { icon: "🗑️" });
+  };
+
   // Auto-save settings when they change
   useEffect(() => {
     if (smtpConfig.host || smtpConfig.user) {
       localStorage.setItem("jecrc_smtpConfig", JSON.stringify(smtpConfig));
     }
-  }, [smtpConfig]);
+    if (smtpConfig.pass && isPassSaved) {
+      localStorage.setItem("jecrc_smtp_pass", smtpConfig.pass);
+    }
+  }, [smtpConfig, isPassSaved]);
 
   useEffect(() => {
     localStorage.setItem("jecrc_emailTemplate", JSON.stringify(emailTemplate));
@@ -280,6 +357,154 @@ export default function Dashboard() {
 
   const isDark = theme === "dark";
 
+  // Initial loading state while reading localStorage
+  if (isAuthenticated === null) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${isDark ? "bg-black text-slate-100" : "bg-[#f8fafc] text-slate-800"}`}>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs font-semibold tracking-wider uppercase opacity-75">Authenticating JECRC Portal...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Authentication Login Gate
+  if (!isAuthenticated) {
+    return (
+      <div className={`min-h-screen relative flex items-center justify-center p-4 transition-colors duration-300 font-sans selection:bg-red-600 selection:text-white ${
+        isDark ? "bg-black text-slate-100" : "bg-[#f8fafc] text-slate-800"
+      }`}>
+        {/* Ambient Glow */}
+        <div className={`absolute top-1/4 left-1/3 w-[36rem] h-[36rem] rounded-full blur-3xl pointer-events-none animate-glow-pulse ${
+          isDark ? "bg-red-600/15" : "bg-red-500/10"
+        }`}></div>
+
+        {/* Theme Toggle in top-right */}
+        <div className="absolute top-6 right-6 z-20">
+          <button
+            onClick={toggleTheme}
+            className={`p-2.5 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-95 cursor-pointer ${
+              isDark
+                ? "bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800"
+                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+            }`}
+            title={`Switch to ${isDark ? "Light" : "Dark"} Mode`}
+          >
+            {isDark ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5 text-slate-700" />}
+          </button>
+        </div>
+
+        {/* Login Box */}
+        <div className={`w-full max-w-md p-8 sm:p-10 rounded-3xl border transition-all relative z-10 shadow-2xl ${
+          isDark ? "dark-glass border-slate-800/90 shadow-red-950/20" : "bg-white border-slate-200 shadow-xl"
+        }`}>
+          {/* Logo & Header */}
+          <div className="text-center space-y-3">
+            <div className={`inline-flex p-3 rounded-2xl border shadow-sm ${
+              isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"
+            }`}>
+              <img
+                src={getAssetUrl("/jecrc-logo.png")}
+                alt="JECRC University Logo"
+                className={`h-14 w-auto object-contain ${isDark ? "brightness-110" : "logo-blend-multiply"}`}
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-center gap-2">
+                <h1 className="text-2xl font-black tracking-tight text-red-600 dark:text-red-500">
+                  JECRC UNIVERSITY
+                </h1>
+              </div>
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                HR Emailer &amp; Faculty Portal
+              </p>
+              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-red-600/10 text-red-600 dark:text-red-400 border border-red-500/20">
+                <Lock className="w-3 h-3" />
+                <span>Restricted Access · Authorized HR Personnel</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="mt-7 space-y-4">
+            {loginError && (
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-red-500" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
+            <div>
+              <label className={`block text-xs font-semibold mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                HR Username
+              </label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                  <User className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={loginUsername}
+                  onChange={(e) => setLoginUsername(e.target.value)}
+                  placeholder="Enter HR username (e.g. jecrchr)"
+                  className={`w-full pl-10 pr-4 py-3 rounded-xl outline-none text-xs font-medium transition-all ${
+                    isDark ? "dark-input" : "light-input"
+                  }`}
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className={`block text-xs font-semibold mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                Portal Password
+              </label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                  <Key className="w-4 h-4" />
+                </div>
+                <input
+                  type={showLoginPassword ? "text" : "password"}
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="Enter portal password"
+                  className={`w-full pl-10 pr-10 py-3 rounded-xl outline-none text-xs font-medium transition-all ${
+                    isDark ? "dark-input" : "light-input"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                >
+                  {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoggingIn}
+              className="w-full mt-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 shadow-lg shadow-red-600/25 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+            >
+              <span>{isLoggingIn ? "Verifying..." : "Sign In to HR Portal"}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+
+          {/* Footer note */}
+          <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800/80 text-center text-[11px] text-slate-500 dark:text-slate-400">
+            Official Academic &amp; HR Affairs · JECRC University Jaipur
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen relative overflow-hidden transition-colors duration-300 font-sans selection:bg-blue-600 selection:text-white ${isDark ? "bg-black text-slate-100" : "bg-[#f8fafc] text-slate-800"
       }`}>
@@ -322,8 +547,16 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Quick Metrics, Guide & Theme Switcher */}
+          {/* Quick Metrics, Auth Badge, Guide & Theme Switcher */}
           <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto pb-2 md:pb-0">
+
+            {/* HR Admin Badge */}
+            <div className={`px-3 py-1.5 rounded-2xl border text-xs font-semibold flex items-center gap-1.5 ${
+              isDark ? "bg-slate-900 border-slate-800 text-slate-300" : "bg-white border-slate-200 text-slate-700 shadow-sm"
+            }`}>
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <span>jecrchr (HR)</span>
+            </div>
 
             {/* Guide Button */}
             <button
@@ -344,6 +577,16 @@ export default function Dashboard() {
               title={`Switch to ${isDark ? "Light" : "Dark"} Mode`}
             >
               {isDark ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5 text-slate-700" />}
+            </button>
+
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="px-3.5 py-2 rounded-2xl bg-red-600/10 hover:bg-red-600 hover:text-white text-red-600 dark:text-red-400 font-bold text-xs flex items-center space-x-1.5 border border-red-500/20 transition-all cursor-pointer active:scale-95"
+              title="Sign Out of HR Portal"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </header>
@@ -710,6 +953,41 @@ export default function Dashboard() {
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
+                  </div>
+
+                  {/* Password Save / Remember controls */}
+                  <div className="mt-2 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveSmtpPassword}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all flex items-center gap-1 cursor-pointer active:scale-95 ${
+                          isPassSaved
+                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                            : isDark
+                            ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300"
+                        }`}
+                      >
+                        {isPassSaved ? <Check className="w-3 h-3 text-emerald-500" /> : <Save className="w-3 h-3 text-amber-500" />}
+                        <span>{isPassSaved ? "Password Saved" : "Save SMTP Password"}</span>
+                      </button>
+
+                      {isPassSaved && (
+                        <button
+                          type="button"
+                          onClick={handleClearSmtpPassword}
+                          className="text-[10px] text-red-500 hover:underline cursor-pointer"
+                          title="Remove saved password from browser"
+                        >
+                          Forget
+                        </button>
+                      )}
+                    </div>
+
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                      {isPassSaved ? "Auto-loads on this device" : "Remember on this device"}
+                    </span>
                   </div>
                 </div>
               </div>
