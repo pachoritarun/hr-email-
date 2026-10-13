@@ -40,8 +40,13 @@ export async function POST(req: Request) {
         body = body.replace(regex, value);
       });
 
+      let senderFrom = smtpConfig.from;
+      if (!senderFrom || senderFrom.includes("Administration") || senderFrom.includes("JECRC University HR")) {
+        senderFrom = `HR JECRC University <${smtpConfig.user}>`;
+      }
+
       const mailOptions: any = {
-        from: smtpConfig.from,
+        from: senderFrom,
         to: studentEmail,
         subject,
       };

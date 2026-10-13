@@ -160,6 +160,12 @@ export async function POST(req: Request) {
 
     const subject = customSubject || `Welcome Aboard - ${facultyData.name} | JECRC University`;
 
+    // Ensure sender header is HR JECRC University
+    let senderFrom = smtpConfig.from;
+    if (!senderFrom || senderFrom.includes("Administration") || senderFrom.includes("JECRC University HR")) {
+      senderFrom = `HR JECRC University <${smtpConfig.user}>`;
+    }
+
     // Determine target recipient list
     let recipients: string[] = [];
 
@@ -170,7 +176,7 @@ export async function POST(req: Request) {
     } else if (recipientMode === "custom_list") {
       try {
         await transporter.sendMail({
-          from: smtpConfig.from,
+          from: senderFrom,
           to: customTo || undefined,
           cc: customCc || undefined,
           bcc: customBcc || undefined,
@@ -232,7 +238,7 @@ export async function POST(req: Request) {
     for (const recipient of recipients) {
       try {
         await transporter.sendMail({
-          from: smtpConfig.from,
+          from: senderFrom,
           to: recipient,
           subject,
           html: htmlEmail,

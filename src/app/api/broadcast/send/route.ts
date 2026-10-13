@@ -144,8 +144,13 @@ export async function POST(req: Request) {
       // 2. Send Email
       if (sendEmail && emailVal) {
         try {
+          let senderFrom = smtpConfig.from;
+          if (!senderFrom || senderFrom.includes("Administration") || senderFrom.includes("JECRC University HR")) {
+            senderFrom = `HR JECRC University <${smtpConfig.user}>`;
+          }
+
           const mailOptions = {
-            from: smtpConfig.from,
+            from: senderFrom,
             to: emailVal,
             subject: resolvedSubject,
             text: resolvedMessage, // default as plain text message

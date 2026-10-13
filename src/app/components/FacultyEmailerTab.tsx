@@ -77,15 +77,30 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
   const [photoMime, setPhotoMime] = useState<string>("image/jpeg");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const formatSenderFrom = (fromStr?: string, userEmail?: string) => {
+    const email = userEmail || "admin@jecrcu.edu.in";
+    if (!fromStr || fromStr.includes("Administration") || fromStr.includes("JECRC University HR")) {
+      return `HR JECRC University <${email}>`;
+    }
+    return fromStr;
+  };
+
   // Direct SMTP configuration & Password
   const [smtpHost, setSmtpHost] = useState(smtpConfig?.host || "smtp.gmail.com");
   const [smtpPort, setSmtpPort] = useState(smtpConfig?.port || 465);
   const [smtpUser, setSmtpUser] = useState(smtpConfig?.user || "admin@jecrcu.edu.in");
   const [smtpPass, setSmtpPass] = useState(smtpConfig?.pass || "");
-  const [smtpFrom, setSmtpFrom] = useState(smtpConfig?.from || "JECRC University HR <admin@jecrcu.edu.in>");
+  const [smtpFrom, setSmtpFrom] = useState(formatSenderFrom(smtpConfig?.from, smtpConfig?.user));
   const [showPassword, setShowPassword] = useState(false);
   const [showAdvancedSmtp, setShowAdvancedSmtp] = useState(false);
   const [isPassSaved, setIsPassSaved] = useState(false);
+
+  // Keep smtpFrom synced when smtpConfig changes
+  useEffect(() => {
+    if (smtpConfig?.from) {
+      setSmtpFrom(formatSenderFrom(smtpConfig.from, smtpConfig.user));
+    }
+  }, [smtpConfig?.from, smtpConfig?.user]);
 
   // Load saved SMTP password on mount
   useEffect(() => {
@@ -130,7 +145,12 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
         localStorage.setItem("jecrc_smtp_pass", val);
       }
     }
-    if (key === "user") setSmtpUser(val);
+    if (key === "user") {
+      setSmtpUser(val);
+      if (!smtpFrom || smtpFrom.includes("Administration") || smtpFrom.includes("HR JECRC University")) {
+        setSmtpFrom(`HR JECRC University <${val}>`);
+      }
+    }
     if (key === "host") setSmtpHost(val);
     if (key === "port") setSmtpPort(Number(val) || 465);
     if (key === "from") setSmtpFrom(val);
@@ -341,12 +361,17 @@ export default function FacultyEmailerTab({ isDark, smtpConfig, setSmtpConfig }:
     const toastId = toast.loading("Dispatching Welcome Aboard announcement email...");
 
     try {
+      let effectiveFrom = smtpFrom;
+      if (!effectiveFrom || effectiveFrom.includes("Administration") || effectiveFrom.includes("JECRC University HR")) {
+        effectiveFrom = `HR JECRC University <${smtpUser}>`;
+      }
+
       const activeSmtp = {
         host: smtpHost,
         port: Number(smtpPort) || 465,
         user: smtpUser,
         pass: activePass,
-        from: smtpFrom || `JECRC University HR <${smtpUser}>`,
+        from: effectiveFrom,
       };
 
       const payload = {

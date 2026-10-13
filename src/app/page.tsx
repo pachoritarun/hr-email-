@@ -55,12 +55,12 @@ export default function Dashboard() {
     port: 465,
     user: "admin@jecrcu.edu.in",
     pass: "",
-    from: "JECRC University Administration <admin@jecrcu.edu.in>",
+    from: "HR JECRC University <admin@jecrcu.edu.in>",
   });
 
   const [emailTemplate, setEmailTemplate] = useState({
     subject: "JECRC University - Academic Portal Access Credentials for {{name}}",
-    body: "Dear {{name}},\n\nGreetings from JECRC University Administration.\n\nYour official student registration and portal access credentials for the academic session are detailed below:\n\n• Student Name: {{name}}\n• Roll Number: {{rollNumber}}\n• Student ID: {{id}}\n• Portal Login Email: {{email}}\n• Temporary Password: {{password}}\n\nPlease log in to the official JECRC Student Portal (https://portal.jecrcu.edu.in) to reset your password and complete your registration.\n\nFor any academic queries, contact academics@jecrcu.edu.in.\n\nWarm regards,\nOffice of Academic Affairs\nJECRC University, Jaipur",
+    body: "Dear {{name}},\n\nGreetings from HR JECRC University.\n\nYour official student registration and portal access credentials for the academic session are detailed below:\n\n• Student Name: {{name}}\n• Roll Number: {{rollNumber}}\n• Student ID: {{id}}\n• Portal Login Email: {{email}}\n• Temporary Password: {{password}}\n\nPlease log in to the official JECRC Student Portal (https://portal.jecrcu.edu.in) to reset your password and complete your registration.\n\nFor any academic queries, contact academics@jecrcu.edu.in.\n\nWarm regards,\nOffice of Academic Affairs\nJECRC University, Jaipur",
   });
 
   const [isSending, setIsSending] = useState(false);
@@ -100,6 +100,11 @@ export default function Dashboard() {
     if (savedConfig) {
       try {
         parsedConfig = JSON.parse(savedConfig);
+        // Migrate any previous "Administration" or "JECRC University HR" header to "HR JECRC University"
+        if (parsedConfig?.from && (parsedConfig.from.includes("Administration") || parsedConfig.from.includes("JECRC University HR"))) {
+          parsedConfig.from = parsedConfig.from.replace(/JECRC University Administration|JECRC University HR/g, "HR JECRC University");
+          localStorage.setItem("jecrc_smtpConfig", JSON.stringify(parsedConfig));
+        }
       } catch (e) {}
     }
 
@@ -197,7 +202,7 @@ export default function Dashboard() {
     if (type === "credentials") {
       setEmailTemplate({
         subject: "JECRC University - Academic Portal Access Credentials for {{name}}",
-        body: "Dear {{name}},\n\nGreetings from JECRC University Administration.\n\nYour official student registration and portal access credentials for the academic session are detailed below:\n\n• Student Name: {{name}}\n• Roll Number: {{rollNumber}}\n• Student ID: {{id}}\n• Portal Login Email: {{email}}\n• Temporary Password: {{password}}\n\nPlease log in to the official JECRC Student Portal to complete your registration.\n\nWarm regards,\nOffice of Academic Affairs\nJECRC University, Jaipur",
+        body: "Dear {{name}},\n\nGreetings from HR JECRC University.\n\nYour official student registration and portal access credentials for the academic session are detailed below:\n\n• Student Name: {{name}}\n• Roll Number: {{rollNumber}}\n• Student ID: {{id}}\n• Portal Login Email: {{email}}\n• Temporary Password: {{password}}\n\nPlease log in to the official JECRC Student Portal to complete your registration.\n\nWarm regards,\nHR JECRC University, Jaipur",
       });
     } else if (type === "exam") {
       setEmailTemplate({
@@ -883,10 +888,10 @@ export default function Dashboard() {
                     <User className="w-3.5 h-3.5 text-slate-400" /> Sender Email (Official From Address)
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     value={smtpConfig.from}
                     onChange={(e) => setSmtpConfig({ ...smtpConfig, from: e.target.value })}
-                    placeholder="admin@jecrcu.edu.in"
+                    placeholder="HR JECRC University <admin@jecrcu.edu.in>"
                     className={`w-full px-3.5 py-2.5 rounded-xl outline-none text-xs transition-all font-normal ${isDark ? "dark-input" : "light-input"
                       }`}
                   />
